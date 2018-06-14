@@ -193,7 +193,7 @@
 
                 if(type == 'image'){
                     $.each(items, function(i, img) {
-                        $container.append('<img src="' + img.images[img.images.length - 1].source + '" onclick="openImage(\''+ img.images[0].source + '\')" class="col-3 rounded">');
+                        $container.append('<img src="' + img.images[img.images.length - 2].source + '" onclick="openImage(\''+ img.images[0].source + '\')" class="col-3 rounded">');
                     });
                 }
                 else if(type == 'video'){
