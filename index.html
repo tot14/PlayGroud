@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>Play Ground</title>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
         <script src="https://connect.facebook.net/en_US/sdk.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -40,11 +40,11 @@
                 </div>
                 <div class="col-8">
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="rdoType" id="rdoType1" value="image" >
+                        <input class="form-check-input" type="radio" name="rdoType" id="rdoType1" value="image" checked>
                         <label class="form-check-label" for="rdoType1">Image</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="rdoType" id="rdoType2" value="video" checked>
+                        <input class="form-check-input" type="radio" name="rdoType" id="rdoType2" value="video" >
                         <label class="form-check-label" for="rdoType2">Video</label>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
             var settings = {
                 AppId : '649223465416475',
                 AppVersion : 'v3.0',
-                AppAccessToken : 'EAACEdEose0cBAMJ2ZAWBp7mMUYMtZAuufri2cvnZA29kla0lPkZAQtXLNtuvM2JNku6ZBuNemBHDU7IyD3WjGFhcIhdJRchdIVhzZCJxEZBbOR1O36TZAbP4eWuV02BBkOM9EZA8tYIrK1jx7um1A3FZCu4VICmaVqydm3UtQLSMDRUAoCZCmfk2kfwrjLcLy03wiTP6sdnuzGSWwZDZD',
+                AppAccessToken : '',
             }
 
             var data = {
@@ -79,11 +79,13 @@
                     version: settings.AppVersion
                 });     
             
-                /*FB.getLoginStatus(function(response) {
+                FB.getLoginStatus(function(response) {
                     if (response.status === 'connected') {
                         settings.AppAccessToken = response.authResponse.accessToken;
+
+                        console.log(settings.AppAccessToken);
                     } 
-                });*/
+                });
 
                 init();
             }); 
