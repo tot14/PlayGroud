@@ -1,209 +1,97 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>Play Ground</title>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-        <script src="https://connect.facebook.net/en_US/sdk.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <style type="text/css">
-        </style>
-    </head>
-    <body>
-        </br></br>
-        <div class="container">
-            <div class="form-group row">
-                <div class="col-2 text-right">
-                    <label>AccessToken :</label>        
-                </div>
-                <div class="col-8">
-                    <input id="txtAccessToken" type="text" class="form-control form-control-sm" />
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-2 text-right">
-                    <label>Source :</label>        
-                </div>
-                <div class="col-8">
-                    <select id="ddlPageId" class="form-control form-control-sm">
-                        <option value="399814953400318">Contrast</option>
-                    </select>
-                </div>
-            </div>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Facebook Login JavaScript Example</title>
+<meta charset="UTF-8">
+</head>
+<body>
+<script>
+  // This is called with the results from from FB.getLoginStatus().
+  function statusChangeCallback(response) {
+    console.log('statusChangeCallback');
+    console.log(response);
+    // The response object is returned with a status field that lets the
+    // app know the current login status of the person.
+    // Full docs on the response object can be found in the documentation
+    // for FB.getLoginStatus().
+    if (response.status === 'connected') {
+      // Logged into your app and Facebook.
+      testAPI();
+    } else {
+      // The person is not logged into your app or we are unable to tell.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into this app.';
+    }
+  }
 
-            <div class="form-group row">
-                <div class="col-2 text-right">
-                    <label>Type :</label>        
-                </div>
-                <div class="col-8">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="rdoType" id="rdoType1" value="image" checked>
-                        <label class="form-check-label" for="rdoType1">Image</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="rdoType" id="rdoType2" value="video" >
-                        <label class="form-check-label" for="rdoType2">Video</label>
-                    </div>
-                </div>
-            </div>
+  // This function is called when someone finishes with the Login
+  // Button.  See the onlogin handler attached to it in the sample
+  // code below.
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
+  }
 
-            <div class="form-group row">
-                <div class="col-12 text-center">
-                    <button id="btnSubmit" class="btn btn-sm btn-primary"> Search </label>        
-                </div>
-            </div>
-        </div>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '649223465416475',
+      cookie     : true,  // enable cookies to allow the server to access 
+                          // the session
+      xfbml      : true,  // parse social plugins on this page
+      version    : 'v3.0' // use graph api version 2.8
+    });
 
-        <div id="gallery"></div>
+    // Now that we've initialized the JavaScript SDK, we call 
+    // FB.getLoginStatus().  This function gets the state of the
+    // person visiting this page and can return one of three states to
+    // the callback you provide.  They can be:
+    //
+    // 1. Logged into your app ('connected')
+    // 2. Logged into Facebook, but not your app ('not_authorized')
+    // 3. Not logged into Facebook and can't tell if they are logged into
+    //    your app or not.
+    //
+    // These three cases are handled in the callback function.
 
-        <script>
-            var settings = {
-                AppId : '649223465416475',
-                AppVersion : 'v3.0',
-                AppAccessToken : '',
-            }
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
 
-            var data = {
-                Current : '',
-                Next : '',
-                Previous : '',
-                Count : 0
-            } 
+  };
 
-            $(function() {
-                FB.init({
-                    appId: settings.AppId,
-                    version: settings.AppVersion
-                });     
-            
-                FB.getLoginStatus(function(response) {
-                    if (response.status === 'connected') {
-                        settings.AppAccessToken = response.authResponse.accessToken;
+  // Load the SDK asynchronously
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
 
-                        console.log(settings.AppAccessToken);
-                    } 
-                });
+  // Here we run a very simple test of the Graph API after login is
+  // successful.  See statusChangeCallback() for when this call is made.
+  function testAPI() {
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me', function(response) {
+      console.log('Successful login for: ' + response.name);
+      document.getElementById('status').innerHTML =
+        'Thanks for logging in, ' + response.name + '!';
+    });
+  }
+</script>
 
-                init();
-            }); 
+<!--
+  Below we include the Login Button social plugin. This button uses
+  the JavaScript SDK to present a graphical Login button that triggers
+  the FB.login() function when clicked.
+-->
 
-            function init(){
-                $('#txtAccessToken').val(settings.AppAccessToken);
+<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+</fb:login-button>
 
-                $('#btnSubmit').on('click', function() {
-                    var type = $('input[name="rdoType"]:checked').val();
-                    if(type == 'image'){
-                        getImages($('#ddlPageId').val(), data.Next);
-                    }
-                    else if(type == 'video'){
-                        getVideos($('#ddlPageId').val(), data.Next);
-                    }
-                });
+<div id="status">
+</div>
 
-                $('input[name="rdoType"]').on('change',function(e){
-                    $('#gallery').empty();
-                    data.Current = '';
-                    data.Next = '';
-                    data.Previous = '';
-                    data.Count = 0;
-                });
-
-                $(window).scroll(function() {
-                    var type = $('input[name="rdoType"]:checked').val();
-                    if(type == 'image'){
-                        getImages($('#ddlPageId').val(), data.Next);
-                    }
-                    else if(type == 'video'){
-                        getVideos($('#ddlPageId').val(), data.Next);
-                    }
-                });
-            }
-
-            function getImages(pageId, next) {
-                var accessToken = $('#txtAccessToken').val();
-                var url = '/' + pageId + '/photos';
-                var args = { 
-                    access_token: accessToken,
-                    fields : 'images',
-                    type: 'uploaded',
-                    limit: 25,
-                    after: next
-                };
-
-                if(data.Current == '' || data.Current != next) {
-                    FB.api(url, args, function(res) {
-                                
-                        if(res.data){
-                            updateGallery(res.data, 'image');
-                        }
-
-                        if(res.paging){
-                            data.Next = res.paging.cursors.after;
-                            data.Previous = res.paging.cursors.before;
-                        }
-                
-                    });
-                }
-
-                data.Current = next;
-            }
-
-            function getVideos(pageId, next){
-                var accessToken = $('#txtAccessToken').val();
-                var url = '/' + pageId + '/videos';
-                var args = { 
-                    access_token: accessToken,
-                    fields : 'picture,embed_html',
-                    limit: 25,
-                    after: next
-                };
-
-                if(data.Current == '' || data.Current != next) {
-                    FB.api(url, args, function(res) {
-                                
-                        if(res.data){
-                            updateGallery(res.data, 'video');
-                        }
-
-                        if(res.paging){
-                            data.Next = res.paging.cursors.after;
-                            data.Previous = res.paging.cursors.before;
-                        }
-                    });
-                }
-
-                data.Current = next;
-            }
-
-            function updateGallery(items, type) {
-
-                var $container = $('#gallery');
-
-                console.log(items, type);
-
-                if(type == 'image'){
-                    $.each(items, function(i, img) {
-                        $container.append('<img src="' + img.images[img.images.length - 1].source + '" onclick="openImage(\''+ img.images[0].source + '\')" class="col-3 rounded">');
-                    });
-                }
-                else if(type == 'video'){
-                    $.each(items, function(i, video) {
-                        var source = $(video.embed_html).attr('src') + '&mute=0';
-                        $container.append('<img src="' + video.picture + '" onclick="openImage(\'' + source +'\')"  class="col-3 rounded">');
-                    });
-                }
-
-                data.Count = data.Count + items.length;
-            }
-
-            function openImage(src) {
-                var win = window.open(src, '_blank');
-                win.focus();
-            }
-
-        </script>
-    </body>
+</body>
 </html>
