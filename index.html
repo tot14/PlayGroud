@@ -10,6 +10,25 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <style type="text/css">
+            .fullscreen:-webkit-full-screen {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                text-align: center;
+            }
+
+            .fullscreen img {
+                display: none;
+            }
+
+            .fullscreen:-webkit-full-screen img {
+                display: block;
+                width: auto;
+                height: 100%;
+                margin: 0 auto;
+            }
         </style>
     </head>
     <body>
@@ -20,7 +39,12 @@
                     <label>AccessToken :</label>        
                 </div>
                 <div class="col-8">
-                    <input id="txtAccessToken" type="text" class="form-control form-control-sm" />
+                    <div class="input-group input-group-sm">
+                        <input id="txtAccessToken" type="text" class="form-control" >
+                        <div class="input-group-append">
+                            <a class="input-group-text btn btn-primary" href="https://developers.facebook.com/tools/explorer" target="_blank" >Get Token</a>
+                        </div>
+                      </div>
                 </div>
             </div>
             <div class="form-group row">
@@ -29,14 +53,14 @@
                 </div>
                 <div class="col-8">
                     <select id="ddlPageId" class="form-control form-control-sm">
-                        <!--<option value="399814953400318">Contrast</option>-->
-                        <option value="293144433802">MarsMagazine</option>
+                        <option value="399814953400318">Contrast</option>
+                        <!--<option value="293144433802">MarsMagazine</option>
                         <option value="1142775052496607">ดีต่อใจ</option>
                         <option value="349084361853587">SexyDanceFanpage</option>
                         <option value="306305343204930">Sexyclub20up</option>
                         <option value="1623386207976420">SexyAngels</option>
                         <option value="958865924218839">CupE</option>
-                        <option value="697857217063434">AboutG</option>
+                        <option value="697857217063434">AboutG</option> -->
                     </select>
                 </div>
             </div>
@@ -56,28 +80,30 @@
                     </div>
                 </div>
             </div>
-
             <div class="form-group row">
                 <div class="col-12 text-center">
-                    <button id="btnSubmit" class="btn btn-sm btn-primary"> Search </label>        
+                    <button id="btnSubmit" class="btn btn-sm btn-primary"> Search </label>      
                 </div>
             </div>
         </div>
-
         <div id="gallery"></div>
+        <div id="fullScreen" class="fullscreen">
+            <img src="#" ></img>
+        </div>
 
         <script>
             var settings = {
                 AppId : '649223465416475',
                 AppVersion : 'v3.0',
-                AppAccessToken : '',
+                AppAccessToken : 'EAACEdEose0cBAGOzY8A6HqdURztikY9KIEdddWJVvMGB39yHZBq8FC8cJiUVfqxHrRQCMKOccYxrZCwpSJAr73c374msSoc5kJU67DBz7mnRLUKZB3Af6sFMki7VvjlXw5w0NlL6c0xCBfTZClfa91PXQw1ppp1oezja5bNq76bobZBgmaPOdSAsQSA3gS2oZD',
             }
 
             var data = {
-                Current : '',
-                Next : '',
-                Previous : '',
-                Count : 0
+                CurrentPage : '',
+                NextPage : '',
+                PreviousPage : '',
+                Count : 0,
+                Items : []
             } 
 
             $(function() {
@@ -86,13 +112,9 @@
                     version: settings.AppVersion
                 });     
             
-                FB.getLoginStatus(function(response) {
-                    if (response.status === 'connected') {
-                        settings.AppAccessToken = response.authResponse.accessToken;
-
-                        console.log(settings.AppAccessToken);
-                    } 
-                });
+                /*FB.getLoginStatus(function(res) {
+                    fbLoginStateCallBack(res);
+                });*/
 
                 init();
             }); 
@@ -103,30 +125,45 @@
                 $('#btnSubmit').on('click', function() {
                     var type = $('input[name="rdoType"]:checked').val();
                     if(type == 'image'){
-                        getImages($('#ddlPageId').val(), data.Next);
+                        getImages($('#ddlPageId').val(), data.NextPage);
                     }
                     else if(type == 'video'){
-                        getVideos($('#ddlPageId').val(), data.Next);
+                        getVideos($('#ddlPageId').val(), data.NextPage);
                     }
                 });
 
-                $('input[name="rdoType"]').on('change',function(e){
+                $('input[name="rdoType"],#ddlPageId').on('change',function(e){
                     $('#gallery').empty();
-                    data.Current = '';
-                    data.Next = '';
-                    data.Previous = '';
-                    data.Count = 0;
+                    data.CurrentPage = '';
+                    data.NextPage = '';
+                    data.PreviousPage = '';
+                    data.Items = [];
                 });
 
                 $(window).scroll(function() {
                     var type = $('input[name="rdoType"]:checked').val();
                     if(type == 'image'){
-                        getImages($('#ddlPageId').val(), data.Next);
+                        getImages($('#ddlPageId').val(), data.NextPage);
                     }
                     else if(type == 'video'){
-                        getVideos($('#ddlPageId').val(), data.Next);
+                        getVideos($('#ddlPageId').val(), data.NextPage);
                     }
                 });
+            }
+
+            function fbLoginStateCallBack(res){
+                if (res.status === 'connected') {
+                    settings.AppAccessToken = res.authResponse.accessToken;
+                    $('#txtAccessToken').val(settings.AppAccessToken);
+                } 
+                else{
+                    var result = confirm('Continue With Facebook');
+                    if(result){
+                        FB.login(function(res) {
+                            fbLoginStateCallBack(res)
+                        });
+                    }
+                }
             }
 
             function getImages(pageId, next) {
@@ -140,22 +177,21 @@
                     after: next
                 };
 
-                if(data.Current == '' || data.Current != next) {
+                if(data.CurrentPage == '' || data.CurrentPage != next) {
                     FB.api(url, args, function(res) {
-                                
                         if(res.data){
                             updateGallery(res.data, 'image');
                         }
 
                         if(res.paging){
-                            data.Next = res.paging.cursors.after;
-                            data.Previous = res.paging.cursors.before;
+                            data.NextPage = res.paging.cursors.after;
+                            data.PreviousPage = res.paging.cursors.before;
                         }
                 
                     });
                 }
 
-                data.Current = next;
+                data.CurrentPage = next;
             }
 
             function getVideos(pageId, next){
@@ -168,7 +204,7 @@
                     after: next
                 };
 
-                if(data.Current == '' || data.Current != next) {
+                if(data.CurrentPage == '' || data.CurrentPage != next) {
                     FB.api(url, args, function(res) {
                                 
                         if(res.data){
@@ -176,39 +212,59 @@
                         }
 
                         if(res.paging){
-                            data.Next = res.paging.cursors.after;
-                            data.Previous = res.paging.cursors.before;
+                            data.NextPage = res.paging.cursors.after;
+                            data.PreviousPage = res.paging.cursors.before;
                         }
                     });
                 }
 
-                data.Current = next;
+                data.CurrentPage = next;
             }
 
             function updateGallery(items, type) {
-
                 var $container = $('#gallery');
-
-                console.log(items, type);
-
                 if(type == 'image'){
                     $.each(items, function(i, img) {
-                        $container.append('<img src="' + img.images[img.images.length - 2].source + '" onclick="openImage(\''+ img.images[0].source + '\')" class="col-3 rounded">');
+                        var source = img.images[img.images.length - 2].source;
+                        $container.append('<img src="' + source + '" onclick="openFullScreenImage(\''+ img.images[0].source + '\')" class="col-3 rounded">');
+                        //$container.append('<img src="' + source + '" onclick="openImage(\''+ img.images[0].source + '\')" class="col-3 rounded">');
+                        //data.Items.append({Type:'Video', Soruce : source});
                     });
                 }
                 else if(type == 'video'){
                     $.each(items, function(i, video) {
                         var source = $(video.embed_html).attr('src') + '&mute=0';
                         $container.append('<img src="' + video.picture + '" onclick="openImage(\'' + source +'\')"  class="col-3 rounded">');
+                        //data.Items.append({Type:'Video', Soruce : source});
                     });
                 }
-
-                data.Count = data.Count + items.length;
             }
 
             function openImage(src) {
                 var win = window.open(src, '_blank');
                 win.focus();
+            }
+
+            function openFullScreenImage(src) {
+                var divObj = document.getElementById('fullScreen');
+                
+                $(divObj).children('img').attr('src', src);
+                
+                if (divObj.requestFullscreen) {
+                    divObj.requestFullscreen();
+                }
+                else if (divObj.msRequestFullscreen) {
+                    divObj.msRequestFullscreen();               
+                }
+                else if (divObj.mozRequestFullScreen) {
+                    divObj.mozRequestFullScreen();      
+                }
+                else if (divObj.webkitRequestFullscreen) {
+                    divObj.webkitRequestFullscreen();       
+                } 
+                else {
+                    console.log("Fullscreen API is not supported");
+                } 
             }
 
         </script>
