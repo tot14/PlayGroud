@@ -10,6 +10,11 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <style type="text/css">
+            .background {
+                background: black;
+                color: white;                
+            }
+
             .fullscreen:-webkit-full-screen {
                 position: absolute;
                 top: 0;
@@ -17,6 +22,7 @@
                 left: 0;
                 right: 0;
                 text-align: center;
+                background: black;
             }
 
             .fullscreen img {
@@ -31,7 +37,7 @@
             }
         </style>
     </head>
-    <body>
+    <body class="background">
         </br></br>
         <div class="container">
             <div class="form-group row">
@@ -86,8 +92,8 @@
                 </div>
             </div>
         </div>
-        <div id="gallery"></div>
-        <div id="fullScreen" class="fullscreen">
+        <div id="gallery" class="background"></div>
+        <div id="fullScreen" class="fullscreen background">
             <img src="#" ></img>
         </div>
 
@@ -95,7 +101,7 @@
             var settings = {
                 AppId : '649223465416475',
                 AppVersion : 'v3.0',
-                AppAccessToken : 'EAACEdEose0cBAGOzY8A6HqdURztikY9KIEdddWJVvMGB39yHZBq8FC8cJiUVfqxHrRQCMKOccYxrZCwpSJAr73c374msSoc5kJU67DBz7mnRLUKZB3Af6sFMki7VvjlXw5w0NlL6c0xCBfTZClfa91PXQw1ppp1oezja5bNq76bobZBgmaPOdSAsQSA3gS2oZD',
+                AppAccessToken : '',
             }
 
             var data = {
