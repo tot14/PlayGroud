@@ -9,12 +9,13 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
         <style type="text/css">
-            .background {
+            html,body{
                 background: black;
-                color: white;                
+                color: white;
             }
-
+            
             .fullscreen:-webkit-full-screen {
                 position: absolute;
                 top: 0;
@@ -22,11 +23,30 @@
                 left: 0;
                 right: 0;
                 text-align: center;
+                display: block;
+            }
+
+            .fullscreen {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                text-align: center;
+                display: none;
+                white-space: nowrap;
                 background: black;
             }
 
+            .fullScreen-center {
+                display: inline-block;
+                height: 100%;
+                vertical-align: middle;
+            }
+
             .fullscreen img {
-                display: none;
+                 display: none;
+                 vertical-align: middle;
             }
 
             .fullscreen:-webkit-full-screen img {
@@ -35,9 +55,38 @@
                 height: 100%;
                 margin: 0 auto;
             }
+
+            .fullscreen .navigate {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 120px;
+                height: 100%;
+                background: black;
+                opacity: 0;
+            
+            }
+
+            .fullscreen .navigate:hover {
+                opacity: 0.8;
+            }
+
+            .fullscreen .navigate .icon {
+                position: absolute;
+                top: calc(50% - 12px);
+                left: calc(50% - 12px);
+                font-size: 40px;
+                color: white;
+            }
+
+            .fullscreen .navigate.right {
+                left: auto;
+                right: 0;
+            }
+
         </style>
     </head>
-    <body class="background">
+    <body>
         </br></br>
         <div class="container">
             <div class="form-group row">
@@ -92,16 +141,20 @@
                 </div>
             </div>
         </div>
-        <div id="gallery" class="background"></div>
-        <div id="fullScreen" class="fullscreen background">
-            <img src="#" ></img>
+        <div id="gallery"></div>
+        <div id="fullScreen" class="fullscreen">
+            <span class="fullScreen-center">
+                <img id="imgContainer" src="#" ></img>
+            </span>
+            <div class="navigate left"><i class="icon fas fa-chevron-left"></i></div>
+            <div class="navigate right"><i class="icon fas fa-chevron-right"></i></div>
         </div>
 
         <script>
             var settings = {
                 AppId : '649223465416475',
                 AppVersion : 'v3.0',
-                AppAccessToken : '',
+                AppAccessToken : 'EAACEdEose0cBAD9vYV31AYZAN7y0FKqnrQ38Yj2OMqnqZABLRdUfvbBivuTwXXqj1Gc3xN7jF5rwNncBe8PB6ZBACowFltIvk5PH8czXCDYDnXZB00Fc7TVqrVXEg5iaphvPDz01HVnXiaRhnh3i44FGilgs097NOyf5um0JYdMlOdSfQwMk2LTBOJYINfMZD',
             }
 
             var data = {
@@ -109,6 +162,7 @@
                 NextPage : '',
                 PreviousPage : '',
                 Count : 0,
+                CurrentItemIndex : 0,
                 Items : []
             } 
 
@@ -129,13 +183,7 @@
                 $('#txtAccessToken').val(settings.AppAccessToken);
 
                 $('#btnSubmit').on('click', function() {
-                    var type = $('input[name="rdoType"]:checked').val();
-                    if(type == 'image'){
-                        getImages($('#ddlPageId').val(), data.NextPage);
-                    }
-                    else if(type == 'video'){
-                        getVideos($('#ddlPageId').val(), data.NextPage);
-                    }
+                    getItems();
                 });
 
                 $('input[name="rdoType"],#ddlPageId').on('change',function(e){
@@ -143,17 +191,46 @@
                     data.CurrentPage = '';
                     data.NextPage = '';
                     data.PreviousPage = '';
+                    data.CurrentItemIndex = 0;
                     data.Items = [];
                 });
 
+                $('img').on('load', function(e){
+                    if(e.target.width > e.target.height){
+                        $('img').css('visibility','hidden');
+                        $('img').css('width', '100%');
+                        $('img').css('height', 'auto');
+                        
+                        setTimeout(function(){
+                            $('img').css('margin-top', (($(window).height() - $('#imgContainer').height()))/2 + 'px');
+                            $('img').css('visibility','visible');
+                        },100);
+                    }
+                    else{
+                        $('img').css('height', '100%');
+                        $('img').css('width', 'auto');
+                        $('img').css('margin-top', '0');
+                    }
+                });
+
+                $('.navigate.left').on('click',function(){
+                    if(data.CurrentItemIndex > 0){
+                        data.CurrentItemIndex = data.CurrentItemIndex - 1;
+                        updateImage(data.Items[data.CurrentItemIndex].src);
+                    }
+                });
+
+                $('img, .navigate.right').on('click',function(){
+                    data.CurrentItemIndex = data.CurrentItemIndex + 1;
+                    updateImage(data.Items[data.CurrentItemIndex].src);
+                    
+                    if(data.Items.length < data.CurrentItemIndex +1){
+                        getItems();
+                    }
+                });
+
                 $(window).scroll(function() {
-                    var type = $('input[name="rdoType"]:checked').val();
-                    if(type == 'image'){
-                        getImages($('#ddlPageId').val(), data.NextPage);
-                    }
-                    else if(type == 'video'){
-                        getVideos($('#ddlPageId').val(), data.NextPage);
-                    }
+                    getItems();
                 });
             }
 
@@ -169,6 +246,17 @@
                             fbLoginStateCallBack(res)
                         });
                     }
+                }
+            }
+
+            function getItems(){
+                var type = $('input[name="rdoType"]:checked').val();
+                
+                if(type == 'image'){
+                    getImages($('#ddlPageId').val(), data.NextPage);
+                }
+                else if(type == 'video'){
+                    getVideos($('#ddlPageId').val(), data.NextPage);
                 }
             }
 
@@ -229,21 +317,26 @@
 
             function updateGallery(items, type) {
                 var $container = $('#gallery');
+                
                 if(type == 'image'){
                     $.each(items, function(i, img) {
-                        var source = img.images[img.images.length - 2].source;
-                        $container.append('<img src="' + source + '" onclick="openFullScreenImage(\''+ img.images[0].source + '\')" class="col-3 rounded">');
-                        //$container.append('<img src="' + source + '" onclick="openImage(\''+ img.images[0].source + '\')" class="col-3 rounded">');
-                        //data.Items.append({Type:'Video', Soruce : source});
+                        var source  = img.images[0].source;
+                        $container.append('<img src="' + img.images[img.images.length - 2].source + '" onclick="openFullScreenImage(\''+ source + '\','+ img.id +')" class="col-3 rounded">');
+                        data.Items.push({id: img.id, src: img.images[0].source});
                     });
                 }
                 else if(type == 'video'){
                     $.each(items, function(i, video) {
-                        var source = $(video.embed_html).attr('src') + '&mute=0';
+                        var source =  $(video.embed_html).attr('src');
                         $container.append('<img src="' + video.picture + '" onclick="openImage(\'' + source +'\')"  class="col-3 rounded">');
-                        //data.Items.append({Type:'Video', Soruce : source});
+                        data.Items.push({id: video.id, src: source});
                     });
                 }
+            }
+
+            function updateImage(src){
+                var container = document.getElementById('fullScreen');
+                $(container).children('span').children('img').attr('src', src);
             }
 
             function openImage(src) {
@@ -251,26 +344,30 @@
                 win.focus();
             }
 
-            function openFullScreenImage(src) {
-                var divObj = document.getElementById('fullScreen');
-                
-                $(divObj).children('img').attr('src', src);
-                
-                if (divObj.requestFullscreen) {
-                    divObj.requestFullscreen();
+            function openFullScreenImage(src, id) {
+                var container = document.getElementById('fullScreen');
+
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
                 }
-                else if (divObj.msRequestFullscreen) {
-                    divObj.msRequestFullscreen();               
+                else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();               
                 }
-                else if (divObj.mozRequestFullScreen) {
-                    divObj.mozRequestFullScreen();      
+                else if (container.mozRequestFullScreen) {
+                    container.mozRequestFullScreen();      
                 }
-                else if (divObj.webkitRequestFullscreen) {
-                    divObj.webkitRequestFullscreen();       
+                else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();       
                 } 
                 else {
                     console.log("Fullscreen API is not supported");
                 } 
+
+                updateImage(src);
+
+                data.CurrentItemIndex = data.Items.findIndex(function(e){
+                    return e.id == id;
+                });
             }
 
         </script>
